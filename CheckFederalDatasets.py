@@ -7,6 +7,9 @@ import FederalTopic
 
 federalDataURL = "http://data.geo.admin.ch/"
 
+#~ TODO: Benachrichtigung wenn etwas geändert (z.B. per Mail)
+#~ TODO: federalDataURL als Input-Parameter
+
 def getTopicList():
 	topics = []
 		

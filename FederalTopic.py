@@ -6,6 +6,9 @@ import shutil
 import hashlib
 import sqlite3
 
+#~ TODO: wenn Status changed => neuen MD5-Wert in DB speichern
+#~ configDB parametrisieren
+
 class FederalTopic():
 	def __init__(self, name, URL):
 		self.name = name
