@@ -2,10 +2,11 @@ import urllib2
 from bs4 import BeautifulSoup
 import tempfile
 import os
+import FederalTopic
 
 federalDataURL = "http://data.geo.admin.ch/"
-tempDir = tempfile.mkdtemp()
-print "Temp-Dir: " + tempDir
+#~ tempDir = tempfile.mkdtemp()
+#~ print "Temp-Dir: " + tempDir
 
 def getTopicList():
 	f = urllib2.urlopen(federalDataURL)
@@ -34,13 +35,17 @@ def downloadReadme(topics):
 		readmes.append(tempFile)
 	return readmes
 
-def extractMD5(readme):
-	print readme
+#~ def extractMD5(readme):
+	#~ print readme
 
 federalTopics = getTopicList()
-federalTopicsReadme = downloadReadme(federalTopics)
+for f in federalTopics:
+	ft = FederalTopic.FederalTopic(f, federalDataURL + f)
+	print ft.tempFile
+	
+#~ federalTopicsReadme = downloadReadme(federalTopics)
 
-for f in federalTopicsReadme:
-	md5 = extractMD5(f)
+#~ for f in federalTopicsReadme:
+	#~ md5 = extractMD5(f)
 
 #~ TODO: delete Tempdir
