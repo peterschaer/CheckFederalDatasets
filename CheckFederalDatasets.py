@@ -6,9 +6,9 @@ import os
 import FederalTopic
 
 federalDataURL = "http://data.geo.admin.ch/"
+configDB = r"C:\Daten\Repos\CheckFederalDatasets\federalTopicsConf.sqlite"
 
 #~ TODO: Benachrichtigung wenn etwas geändert (z.B. per Mail)
-#~ TODO: federalDataURL als Input-Parameter
 
 def getTopicList():
 	topics = []
@@ -23,7 +23,13 @@ def getTopicList():
 		
 	return topics
 
-federalTopics = getTopicList()
-for f in federalTopics:
-	ft = FederalTopic.FederalTopic(f, federalDataURL + f)
-	print f + "," + ft.newMD5 + "  " + ft.oldMD5 + " Status: " + ft.status
+federalTopicNames = getTopicList()
+federalTopics = []
+for f in federalTopicNames:
+	ft = FederalTopic.FederalTopic(f, federalDataURL + f, configDB)
+	federalTopics.append(ft)
+
+#~ Nach Status sortieren
+federalTopicsSorted = sorted(federalTopics, key=lambda FederalTopic: FederalTopic.status)
+for ft in federalTopicsSorted:
+	print ft.name + ": " + ft.status + " (" + ft.oldMD5 + " " + ft.newMD5 + ")"

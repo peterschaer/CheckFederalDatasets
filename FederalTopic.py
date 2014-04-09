@@ -6,11 +6,8 @@ import shutil
 import hashlib
 import sqlite3
 
-#~ TODO: wenn Status changed => neuen MD5-Wert in DB speichern
-#~ configDB parametrisieren
-
 class FederalTopic():
-	def __init__(self, name, URL):
+	def __init__(self, name, URL, DB):
 		self.name = name
 		self.url = URL
 		self.ReadmeFile = ""
@@ -18,8 +15,8 @@ class FederalTopic():
 		self.ReadmeContent =""
 		self.oldMD5 = ""
 		self.newMD5 = ""
-		self.configDB = r"C:\Daten\Repos\CheckFederalDatasets\federalTopicsConf.sqlite"
-		self.status = "unassigned"
+		self.configDB = DB
+		self.status = "UNASSIGNED"
 
 		self.__downloadReadme__()
 		self.__getMD5FromReadme_()
@@ -54,16 +51,34 @@ class FederalTopic():
 		shutil.rmtree(self.tempDir)
 		
 	def __getMD5FromDB__(self):
-		connection = sqlite3.connect(self.configDB)
+		conn = sqlite3.connect(self.configDB)
 		sql = "SELECT md5 from federalTopics WHERE topic='" + self.name + "'"
-		cursor = connection.cursor()
-		self.oldMD5 = cursor.execute(sql).fetchone()[0]
-		cursor.close()
-		connection.close()
+		resultRow = conn.execute(sql).fetchone()
+		conn.close()
+		#~ Ein leeres Resultat bedeutet einen neuen Datensatz
+		self.oldMD5 = "UNDEFINED"
+		if resultRow is not None:
+			self.oldMD5 = resultRow[0]
+		
+	def __updateDBMD5__(self):
+		#~ nur wenn der Status geändert hat, muss die Tabelle aktualisiert werden
+		sql = ""
+		if self.status != "UNCHANGED":
+			if self.status == "CHANGED":
+				sql = "UPDATE federalTopics SET md5='" + self.newMD5 + "' WHERE topic='" + self.name + "'"
+			elif self.status == "NEW":
+				sql = "INSERT INTO federalTopics(topic, md5) VALUES ('" + self.name + "','" + self.newMD5 + "')"
+			conn = sqlite3.connect(self.configDB)
+			conn.execute(sql)
+			conn.commit()
+			conn.close()
 		
 	def __compareMD5__(self):
-		if self.oldMD5 == self.newMD5:
-			self.status = "unchanged"
+		if self.oldMD5 == "UNDEFINED":
+			self.status = "NEW"
 		else:
-			self.status = "changed"
-		
+			if self.oldMD5 == self.newMD5:
+				self.status = "UNCHANGED"
+			else:
+				self.status = "CHANGED"
+		self.__updateDBMD5__()
