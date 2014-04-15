@@ -4,9 +4,13 @@ from bs4 import BeautifulSoup
 import tempfile
 import os
 import FederalTopic
+import codecs
 
-federalDataURL = "http://data.geo.admin.ch/"
-configDB = r"C:\Daten\Repos\CheckFederalDatasets\federalTopicsConf.sqlite"
+logFile = "@(LogFileName)"
+federalDataURL = "@(#var.FEDERALURL)"
+configDB = r"@(#var.CONFIGDB)"
+
+log = codecs.open("@(LogFileName)", "w","iso-8859-1")
 
 #~ TODO: Benachrichtigung wenn etwas geändert (z.B. per Mail)
 
@@ -32,4 +36,13 @@ for f in federalTopicNames:
 #~ Nach Status sortieren
 federalTopicsSorted = sorted(federalTopics, key=lambda FederalTopic: FederalTopic.status)
 for ft in federalTopicsSorted:
-	print ft.name + ": " + ft.status + " (" + ft.oldMD5 + " " + ft.newMD5 + ")"
+	print ft.status + ": " + ft.name + " (" + ft.oldMD5 + " " + ft.newMD5 + ")"
+
+if len(federalTopicsSorted)==0:
+	log.write(u"Script failed")
+else:
+	log.write(u"Script was SUCCESSFUL")
+
+log.close()
+	
+	
