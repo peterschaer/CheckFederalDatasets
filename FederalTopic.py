@@ -38,14 +38,12 @@ class FederalTopic():
 		readmeFile.close()
 		
 	def __getMD5FromReadme_(self):
+		#~ Es wird nicht der MD5-String aus der Datei gelesen, sondern über die gesamte readme.txt-Datei der MD5-Hash gebildet.
+		#~ Wenn sich irgendetwas in der readme.txt-Datei ändert, wird das bemerkt.
 		self.__getFileContent__()
-		searchString = "MD5Checksum:"
-		checkSumLength = 32
-		text = self.ReadmeContent
-		index = text.index(searchString) + len(searchString)
-		#~ Es müssen genau 32 Zeichen für die Checksumme aus dem String extrahiert werden
-		#~ Einige Readmes haben am Schluss noch Zeilenumbrüche
-		self.newMD5 = text[index:index+checkSumLength]
+		md5 = hashlib.md5()
+		md5.update(self.ReadmeContent)
+		self.newMD5 = md5.hexdigest()
 		
 	def __deleteTempDir__(self):
 		shutil.rmtree(self.tempDir)
